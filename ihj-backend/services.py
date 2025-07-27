@@ -30,7 +30,7 @@ class equipamentoService:
         """Obtém lista de classes disponíveis"""
         try:
             df_classes = execute_query("SELECT DISTINCT classe FROM dbo.tb_caract")
-            classes_validas = df_classes["classe"].astype(str).tolist()
+            classes_validas = df_classes["nome"].astype(str).tolist()
 
             # Converte ID → nome caso exista o de/para
             #if self.classe_reverse_dict:
@@ -47,7 +47,7 @@ class equipamentoService:
     #    """Obtém lista de classes disponíveis"""
     #    try:
     #        df_classes = execute_query('SELECT DISTINCT classe FROM dbo.tb_caract')
-    #        classes_validas = df_classes['classe'].astype(str).tolist()
+    #        classes_validas = df_classes['nome'].astype(str).tolist()
     #        
     #        # Retorna nomes das classes se houver de/para, senão retorna IDs
      #       if self.classe_reverse_dict:
