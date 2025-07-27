@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, BarChart3, LogOut, Menu, X } from 'lucide-react';
+import { Search, BarChart3, LogOut, Menu, X, UserPlus } from 'lucide-react';
 import { getUserInfo, logout } from '@/lib/auth';
 
 export default function Layout() {
@@ -15,7 +15,7 @@ export default function Layout() {
     logout();
   };
 
-  const navigation = [
+  const baseNavigation = [
     {
       name: 'Busca por Características',
       href: '/dashboard/caracteristicas',
@@ -29,6 +29,19 @@ export default function Layout() {
       current: location.pathname === '/dashboard/similaridade'
     }
   ];
+
+  const adminNavigation = [
+    {
+      name: 'Cadastrar Usuário',
+      href: '/register',
+      icon: UserPlus,
+      current: location.pathname === '/register'
+    }
+  ];
+
+  const navigation = userInfo?.access_level === 'admin'
+    ? [...baseNavigation, ...adminNavigation]
+    : baseNavigation;
 
   return (
     <div className="min-h-screen bg-gray-50">

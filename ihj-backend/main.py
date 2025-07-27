@@ -62,8 +62,17 @@ async def login(user_credentials: UserLogin):
 
 
 @app.post("/auth/register", response_model=MessageResponse)
-async def register(user: UserCreate):
+async def register(
+    user: UserCreate,
+    current_user: User = Depends(get_current_user)
+):
     """Endpoint para registrar um novo usuário"""
+    if current_user.access_level != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Apenas administradores podem criar novos usuários",
+        )
+
     created = create_user(user)
     return MessageResponse(message=f"Usuário {created.name} criado com sucesso")
 

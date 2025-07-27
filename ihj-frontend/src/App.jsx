@@ -7,6 +7,7 @@ import Dashboard from './components/Dashboard';
 import BuscaCaracteristicas from './components/BuscaCaracteristicas';
 import AnaliseSimilaridade from './components/AnaliseSimilaridade';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
 import { isAuthenticated } from './lib/auth';
 import './App.css';
 
@@ -34,7 +35,11 @@ function App() {
           />
           <Route
             path="/register"
-            element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <RegisterForm />}
+            element={
+              <AdminRoute>
+                <RegisterForm />
+              </AdminRoute>
+            }
           />
           
           {/* Rotas protegidas */}
