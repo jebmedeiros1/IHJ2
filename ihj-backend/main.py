@@ -6,7 +6,14 @@ import uvicorn
 
 from config import settings
 from models import *
-from auth import authenticate_user, create_access_token, get_current_user
+from auth import (
+    authenticate_user,
+    create_access_token,
+    get_current_user,
+    create_user,
+    generate_password_recovery,
+    reset_password,
+)
 from services import equipamento_service, similaridade_service
 
 # Criação da aplicação FastAPI
@@ -52,6 +59,28 @@ async def login(user_credentials: UserLogin):
     )
     
     return Token(access_token=access_token, token_type="bearer")
+
+
+@app.post("/auth/register", response_model=MessageResponse)
+async def register(user: UserCreate):
+    """Endpoint para registrar um novo usuário"""
+    created = create_user(user)
+    return MessageResponse(message=f"Usuário {created.name} criado com sucesso")
+
+
+@app.post("/auth/recover", response_model=MessageResponse)
+async def recover_password(request: PasswordRecoveryRequest):
+    """Endpoint para solicitar recuperação de senha"""
+    token = generate_password_recovery(request.email)
+    # Em uma aplicação real, este token seria enviado por e-mail
+    return MessageResponse(message=f"Token de recuperação: {token}")
+
+
+@app.post("/auth/reset", response_model=MessageResponse)
+async def reset_password_endpoint(request: PasswordResetRequest):
+    """Endpoint para redefinir senha usando token"""
+    reset_password(request.token, request.new_password)
+    return MessageResponse(message="Senha atualizada com sucesso")
 
 @app.post("/auth/logout", response_model=MessageResponse)
 async def logout(current_user: User = Depends(get_current_user)):

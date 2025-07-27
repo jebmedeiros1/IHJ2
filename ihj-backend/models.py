@@ -18,6 +18,22 @@ class User(BaseModel):
     username: str
     name: str
     email: Optional[str] = None
+    access_level: str
+
+# Models for user creation and password recovery
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    username: str
+    password: str
+    access_level: str = "user"
+
+class PasswordRecoveryRequest(BaseModel):
+    email: str
+
+class PasswordResetRequest(BaseModel):
+    token: str
+    new_password: str
 
 # Modelos para busca de equipamentos
 class ClasseResponse(BaseModel):
