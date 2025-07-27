@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import LoginForm from './components/LoginForm';
+import RegisterForm from './components/RegisterForm';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import BuscaCaracteristicas from './components/BuscaCaracteristicas';
@@ -25,11 +26,15 @@ function App() {
       <Router>
         <Routes>
           {/* Rota de login */}
-          <Route 
-            path="/login" 
+          <Route
+            path="/login"
             element={
               isAuthenticated() ? <Navigate to="/dashboard" replace /> : <LoginForm />
-            } 
+            }
+          />
+          <Route
+            path="/register"
+            element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <RegisterForm />}
           />
           
           {/* Rotas protegidas */}

@@ -34,6 +34,22 @@ CREATE INDEX IF NOT EXISTS idx_equipamentos_classe ON equipamentos(classe);
 CREATE INDEX IF NOT EXISTS idx_caracteristicas_equipamento_id ON caracteristicas(equipamento_id);
 CREATE INDEX IF NOT EXISTS idx_caracteristicas_nome ON caracteristicas(nome_caracteristica);
 
+-- Criar tabela de usuários
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    hashed_password VARCHAR(200) NOT NULL,
+    access_level VARCHAR(50) NOT NULL DEFAULT 'user',
+    reset_token VARCHAR(200),
+    reset_expiration TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+
 -- Inserir dados de exemplo (baseados no arquivo original)
 INSERT INTO equipamentos (equipamento, localizacao, denominacao_localizacao, material, classe) VALUES
 ('MTE01241', 'LOC001', 'Área de Produção 1', 'Bomba Centrífuga', 'Bombas'),

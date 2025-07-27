@@ -116,12 +116,11 @@ export default function LoginForm() {
                 )}
               </Button>
             </form>
-            
-            <div className="mt-4 text-sm text-gray-600">
-              {/*
-              <p><strong>Usuários de teste:</strong></p>
-              <p>admin / secret</p>
-              <p>user1 / secret</p>*/}
+
+            <div className="mt-4 text-sm text-gray-600 text-center">
+              <a href="/register" className="text-blue-600 hover:underline">
+                Não possui conta? Cadastre-se
+              </a>
             </div>
           </CardContent>
         </Card>
