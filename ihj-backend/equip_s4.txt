@@ -1,0 +1,5 @@
+Equipam.	Loc.instalação	Denominação do loc.instalação	Material
+MTE01241	LOC001	Área de Produção 1	Bomba Centrífuga
+MTE01242	LOC002	Área de Produção 2	Motor Elétrico
+MTE01243	LOC003	Área de Produção 3	Válvula de Controle
+
