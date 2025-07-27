@@ -1,6 +1,26 @@
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
+
+Base = declarative_base()
+
+class UserORM(Base):
+    __tablename__ = "users"
+    __table_args__ = {"schema": "dbo"}  # <- importante para acessar o schema correto
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    username = Column(String, unique=True, nullable=False, index=True)
+    email = Column(String, unique=True, nullable=True)
+    hashed_password = Column(String, nullable=False)
+    access_level = Column(String, default="user", nullable=False)
+    reset_token = Column(String, nullable=True)
+    reset_expiration = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 # Modelos de autenticação
 class UserLogin(BaseModel):
