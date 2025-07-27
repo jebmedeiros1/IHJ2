@@ -1,7 +1,6 @@
 import pandas as pd
 from typing import List, Dict, Any, Optional, Tuple
-from database_postgresql import get_classes, get_caracteristicas_by_classes, search_equipamentos_by_filters, get_equipamento_details, execute_query 
-from database import execute_insert
+from database import execute_insert, execute_query
 import logging
 from models import FiltroRequest, SimilaridadeRequest
 
@@ -12,12 +11,17 @@ class equipamentoService:
     """Serviço para operações relacionadas a equipamentos"""
     
     def __init__(self):
-        # Carrega o de/para de classes
+        # Carrega o de/para de classes a partir da tabela dbo.tb_classes
         try:
-            self.df_depara_classe = pd.read_csv('./classes.csv', dtype={'ID': str})
-            self.classe_dict = dict(zip(self.df_depara_classe['Nome'], self.df_depara_classe['ID']))
-            self.classe_reverse_dict = dict(zip(self.df_depara_classe['ID'], self.df_depara_classe['Nome']))
-        except FileNotFoundError:
+            query = "SELECT id, nome FROM dbo.tb_classes"
+            self.df_depara_classe = execute_query(query)
+            if not self.df_depara_classe.empty:
+                self.classe_dict = dict(zip(self.df_depara_classe["nome"], self.df_depara_classe["id"]))
+                self.classe_reverse_dict = dict(zip(self.df_depara_classe["id"], self.df_depara_classe["nome"]))
+            else:
+                self.classe_dict = {}
+                self.classe_reverse_dict = {}
+        except Exception:
             self.df_depara_classe = pd.DataFrame()
             self.classe_dict = {}
             self.classe_reverse_dict = {}
@@ -25,9 +29,8 @@ class equipamentoService:
     def get_classes(self) -> List[str]:
         """Obtém lista de classes disponíveis"""
         try:
-            # retorna → [(classe1,), (classe2,), ...]
-            rows = execute_query("SELECT DISTINCT classe FROM dbo.tb_caract")
-            classes_validas = [r[0] for r in rows]          # extrai a 1ª coluna
+            df_classes = execute_query("SELECT DISTINCT classe FROM dbo.tb_caract")
+            classes_validas = df_classes["classe"].astype(str).tolist()
 
             # Converte ID → nome caso exista o de/para
             #if self.classe_reverse_dict:
@@ -178,21 +181,10 @@ class SimilaridadeService:
     """Serviço para análise de similaridade de equipamentos"""
     
     def __init__(self):
-        # Carrega informações dos equipamentos
+        # Carrega informações dos equipamentos a partir da tabela dbo.tb_equipamentos
         try:
-            self.df_info = pd.read_csv('equip_s4.txt', sep='\t', encoding='latin1')
-            # Verifica quais colunas existem no arquivo
-            available_columns = self.df_info.columns.tolist()
-            expected_columns = ['Equipam.', 'Loc.instalação', 'Denominação do loc.instalação', 'Material']
-            
-            # Usa apenas as colunas que existem
-            existing_columns = [col for col in expected_columns if col in available_columns]
-            if existing_columns:
-                self.df_info = self.df_info[existing_columns]
-            else:
-                # Se nenhuma coluna esperada existe, usa todas as disponíveis
-                pass
-        except FileNotFoundError:
+            self.df_info = execute_query("SELECT * FROM dbo.tb_equipamentos")
+        except Exception:
             self.df_info = pd.DataFrame()
     
     def calculate_similarity(self, df: pd.DataFrame, target_equipment: str) -> Tuple[Optional[pd.DataFrame], Optional[pd.DataFrame]]:
