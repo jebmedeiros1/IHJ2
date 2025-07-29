@@ -151,14 +151,24 @@ class equipamentoService:
             
             # Cria pivot table
             dados_pivot = None
+            detalhes_completos = None
             if not df_completo.empty:
                 df_pivot = df_completo.pivot_table(
-                    index='ds_caracteristica', 
-                    columns=['equipamento', 'centro', 'classe'], 
-                    values='valor', 
+                    index='ds_caracteristica',
+                    columns=['equipamento', 'centro', 'classe'],
+                    values='valor',
                     aggfunc='first'
                 )
                 dados_pivot = df_pivot.to_dict()
+
+                # Estrutura detalhes completos para cada equipamento
+                df_det = df_completo.pivot_table(
+                    index=['equipamento', 'centro', 'classe'],
+                    columns='ds_caracteristica',
+                    values='valor',
+                    aggfunc='first'
+                ).reset_index()
+                detalhes_completos = df_det.to_dict('records')
             
             # Lista de equipamentos
             equipamentos = []
@@ -170,6 +180,7 @@ class equipamentoService:
             return {
                 "equipamentos": equipamentos,
                 "dados_pivot": dados_pivot,
+                "detalhes_completos": detalhes_completos,
                 "message": f"Encontrados {len(equipamentos)} equipamentos."
             }
             

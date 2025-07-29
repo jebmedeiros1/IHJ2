@@ -12,8 +12,11 @@ from models import TokenData, User, UserCreate, PasswordRecoveryRequest, Passwor
 from database_postgresql import SessionLocal, engine, Base
 from db_models import UserORM
 
-# Garantir que as tabelas existam
-Base.metadata.create_all(bind=engine)
+# Garantir que as tabelas existam sem falhar em ambientes sem banco
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Aviso: não foi possível criar tabelas no banco de dados: {e}")
 
 # Configuração de criptografia
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
