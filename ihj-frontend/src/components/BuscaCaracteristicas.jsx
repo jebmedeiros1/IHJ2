@@ -70,12 +70,12 @@ export default function BuscaCaracteristicas() {
     }
   };
 
-  const handleClasseChange = (classe) => {
+  const handleClasseChange = (classeId) => {
     setSelectedClasses(prev => {
-      if (prev.includes(classe)) {
-        return prev.filter(c => c !== classe);
+      if (prev.includes(classeId)) {
+        return prev.filter(c => c !== classeId);
       } else {
-        return [...prev, classe];
+        return [...prev, classeId];
       }
     });
   };
@@ -162,16 +162,16 @@ export default function BuscaCaracteristicas() {
           <CardContent>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {classes.map((classe) => (
-                <div key={classe} className="flex items-center space-x-2">
+                <div key={classe.id} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    id={`classe-${classe}`}
-                    checked={selectedClasses.includes(classe)}
-                    onChange={() => handleClasseChange(classe)}
+                    id={`classe-${classe.id}`}
+                    checked={selectedClasses.includes(classe.id)}
+                    onChange={() => handleClasseChange(classe.id)}
                     className="rounded border-gray-300"
                   />
-                  <Label htmlFor={`classe-${classe}`} className="text-sm">
-                    {classe}
+                  <Label htmlFor={`classe-${classe.id}`} className="text-sm">
+                    {classe.id} - {classe.nome}
                   </Label>
                 </div>
               ))}
