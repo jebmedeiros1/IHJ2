@@ -161,6 +161,7 @@ export default function BuscaCaracteristicas() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-60 overflow-y-auto">
+
               {Object.entries(classes).map(([id, nome]) => (
                 <div key={id} className="flex items-center space-x-2">
                   <input
@@ -172,6 +173,7 @@ export default function BuscaCaracteristicas() {
                   />
                   <Label htmlFor={`classe-${id}`} className="text-sm">
                     {id} - {nome}
+
                   </Label>
                 </div>
               ))}

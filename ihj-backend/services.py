@@ -26,6 +26,7 @@ class equipamentoService:
             self.classe_dict = {}
             self.classe_reverse_dict = {}
     
+
     def get_classes(self) -> Dict[str, str]:
         """Obtém mapeamento de id para nome das classes"""
         try:
@@ -37,6 +38,7 @@ class equipamentoService:
                 str(int(row["id"])): row["nome"]
                 for _, row in df_classes.iterrows()
             }
+
         except Exception as e:
             raise Exception(f"Erro ao carregar classes: {e}")
 
