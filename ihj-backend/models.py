@@ -57,7 +57,7 @@ class PasswordResetRequest(BaseModel):
 
 # Modelos para busca de equipamentos
 class ClasseResponse(BaseModel):
-    classes: List[str]
+    classes: Dict[str, str]
 
 class CaracteristicaResponse(BaseModel):
     caracteristicas: List[str]
