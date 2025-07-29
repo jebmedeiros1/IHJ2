@@ -26,20 +26,17 @@ class equipamentoService:
             self.classe_dict = {}
             self.classe_reverse_dict = {}
     
-    def get_classes(self) -> List[str]:
-        """Obtém lista de classes disponíveis"""
+    def get_classes(self) -> List[dict]:
+        """Obtém lista de classes disponíveis com id e nome"""
         try:
-            df_classes = execute_query("SELECT DISTINCT classe FROM dbo.tb_caract")
-            classes_validas = df_classes["nome"].astype(str).tolist()
+            df_classes = execute_query(
+                "SELECT id, nome FROM dbo.tb_classes ORDER BY nome"
+            )
 
-            # Converte ID → nome caso exista o de/para
-            #if self.classe_reverse_dict:
-            #    return [
-            #        self.classe_reverse_dict[c]
-            #        for c in classes_validas
-            #        if c in self.classe_reverse_dict
-            #    ]
-            return classes_validas
+            return [
+                {"id": int(row["id"]), "nome": row["nome"]}
+                for _, row in df_classes.iterrows()
+            ]
         except Exception as e:
             raise Exception(f"Erro ao carregar classes: {e}")
 

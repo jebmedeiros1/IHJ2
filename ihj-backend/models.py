@@ -56,8 +56,13 @@ class PasswordResetRequest(BaseModel):
     new_password: str
 
 # Modelos para busca de equipamentos
+class ClasseItem(BaseModel):
+    id: int
+    nome: str
+
+
 class ClasseResponse(BaseModel):
-    classes: List[str]
+    classes: List[ClasseItem]
 
 class CaracteristicaResponse(BaseModel):
     caracteristicas: List[str]
