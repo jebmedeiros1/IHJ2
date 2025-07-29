@@ -301,11 +301,32 @@ export default function BuscaCaracteristicas() {
                   </div>
                 </div>
                 
-                {resultados.dados_pivot && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Dados Detalhados:</h4>
-                    <div className="text-sm text-muted-foreground">
-                      Dados em formato pivot disponíveis (visualização completa seria implementada com uma tabela mais robusta)
+                {resultados.detalhes_completos && resultados.detalhes_completos.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-semibold">Características:</h4>
+                    <div className="overflow-auto border rounded">
+                      <table className="min-w-full text-sm">
+                        <thead>
+                          <tr>
+                            {Object.keys(resultados.detalhes_completos[0]).map((col) => (
+                              <th key={col} className="border px-2 py-1 text-left">
+                                {col}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {resultados.detalhes_completos.map((row, idx) => (
+                            <tr key={idx}>
+                              {Object.keys(resultados.detalhes_completos[0]).map((col) => (
+                                <td key={col} className="border px-2 py-1">
+                                  {row[col]}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 )}

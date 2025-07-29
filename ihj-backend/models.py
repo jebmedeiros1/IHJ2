@@ -79,6 +79,7 @@ class EquipamentoFiltrado(BaseModel):
 class FiltroResponse(BaseModel):
     equipamentos: List[EquipamentoFiltrado]
     dados_pivot: Optional[Dict[str, Any]] = None
+    detalhes_completos: Optional[List[Dict[str, Any]]] = None
 
 # Modelos para análise de similaridade
 class SimilaridadeRequest(BaseModel):

@@ -154,7 +154,8 @@ async def filtrar_equipamentos(
         
         return FiltroResponse(
             equipamentos=equipamentos,
-            dados_pivot=resultado["dados_pivot"]
+            dados_pivot=resultado["dados_pivot"],
+            detalhes_completos=resultado.get("detalhes_completos")
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
