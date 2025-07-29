@@ -62,7 +62,7 @@ class ClasseItem(BaseModel):
 
 
 class ClasseResponse(BaseModel):
-    classes: List[ClasseItem]
+    classes: Dict[str, str]
 
 class CaracteristicaResponse(BaseModel):
     caracteristicas: List[str]

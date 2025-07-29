@@ -7,7 +7,7 @@ import { Loader2, Search, Filter } from 'lucide-react';
 import { equipamentosAPI } from '@/lib/api';
 
 export default function BuscaCaracteristicas() {
-  const [classes, setClasses] = useState([]);
+  const [classes, setClasses] = useState({});
   const [selectedClasses, setSelectedClasses] = useState([]);
   const [caracteristicas, setCaracteristicas] = useState([]);
   const [selectedCaracteristicas, setSelectedCaracteristicas] = useState([]);
@@ -22,7 +22,7 @@ export default function BuscaCaracteristicas() {
     const loadClasses = async () => {
       try {
         const response = await equipamentosAPI.getClasses();
-        setClasses(response.classes || []);
+        setClasses(response.classes || {});
       } catch (err) {
         console.error('Erro ao carregar classes:', err);
         setError('Erro ao carregar classes disponíveis');
@@ -161,17 +161,19 @@ export default function BuscaCaracteristicas() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-60 overflow-y-auto">
-              {classes.map((classe) => (
-                <div key={classe.id} className="flex items-center space-x-2">
+
+              {Object.entries(classes).map(([id, nome]) => (
+                <div key={id} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
-                    id={`classe-${classe.id}`}
-                    checked={selectedClasses.includes(classe.id)}
-                    onChange={() => handleClasseChange(classe.id)}
+                    id={`classe-${id}`}
+                    checked={selectedClasses.includes(id)}
+                    onChange={() => handleClasseChange(id)}
                     className="rounded border-gray-300"
                   />
-                  <Label htmlFor={`classe-${classe.id}`} className="text-sm">
-                    {classe.id} - {classe.nome}
+                  <Label htmlFor={`classe-${id}`} className="text-sm">
+                    {id} - {nome}
+
                   </Label>
                 </div>
               ))}
