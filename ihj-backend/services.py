@@ -4,9 +4,7 @@ from database import execute_insert, execute_query
 import logging
 from models import FiltroRequest, SimilaridadeRequest
 import json
-from fastapi import FastAPI
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
+
 import traceback
 
 logger = logging.getLogger(__name__)
