@@ -4,7 +4,8 @@ from database_postgresql import Base
 
 class UserORM(Base):
     __tablename__ = "users"
-
+    __table_args__ = {"schema": "dbo"} 
+    
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     username = Column(String(50), unique=True, nullable=False, index=True)

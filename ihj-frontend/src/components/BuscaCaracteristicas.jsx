@@ -126,6 +126,7 @@ export default function BuscaCaracteristicas() {
         classes: selectedClasses,
         filtros: filtros
       });
+      console.log("Resposta da API:", response);
       setResultados(response);
     } catch (err) {
       console.error('Erro ao filtrar equipamentos:', err);
@@ -301,35 +302,36 @@ export default function BuscaCaracteristicas() {
                   </div>
                 </div>
                 
-                {resultados.detalhes_completos && resultados.detalhes_completos.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="font-semibold">Características:</h4>
-                    <div className="overflow-auto border rounded">
-                      <table className="min-w-full text-sm">
-                        <thead>
-                          <tr>
-                            {Object.keys(resultados.detalhes_completos[0]).map((col) => (
-                              <th key={col} className="border px-2 py-1 text-left">
-                                {col}
-                              </th>
+                {resultados?.tabela?.rows?.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold">Tabela por Característica:</h4>
+                  <div className="overflow-auto border rounded">
+                    <table className="min-w-full text-sm">
+                      <thead>
+                        <tr>
+                          {resultados.tabela.columns.map((col) => (
+                            <th key={col.key} className="border px-2 py-1 text-left">
+                              {col.label}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {resultados.tabela.rows.map((row, rowIndex) => (
+                          <tr key={rowIndex}>
+                            {resultados.tabela.columns.map((col) => (
+                              <td key={col.key} className="border px-2 py-1">
+                                {row[col.key]}
+                              </td>
                             ))}
                           </tr>
-                        </thead>
-                        <tbody>
-                          {resultados.detalhes_completos.map((row, idx) => (
-                            <tr key={idx}>
-                              {Object.keys(resultados.detalhes_completos[0]).map((col) => (
-                                <td key={col} className="border px-2 py-1">
-                                  {row[col]}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                )}
+                </div>
+              )}
+
               </div>
             ) : (
               <p className="text-muted-foreground">

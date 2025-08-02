@@ -3,7 +3,11 @@ from typing import List, Dict, Any, Optional, Tuple
 from database import execute_insert, execute_query
 import logging
 from models import FiltroRequest, SimilaridadeRequest
-
+import json
+from fastapi import FastAPI
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -66,10 +70,11 @@ class equipamentoService:
                 class_ids = classes
             
             class_filter = ", ".join([f"'{c}'" for c in class_ids])
+            
             query = f"SELECT DISTINCT ds_caracteristica FROM dbo.tb_caract WHERE classe IN ({class_filter})"
             
             df_columns = execute_query(query)
-            return df_columns['ds_caracteristica'].tolist()
+            return df_columns['ds_caracteristica'].dropna().tolist()
         except Exception as e:
             raise Exception(f"Erro ao carregar características: {e}")
     
@@ -106,7 +111,7 @@ class equipamentoService:
                 class_ids = filtro_request.classes
             
             class_filter = ", ".join([f"'{c}'" for c in class_ids])
-            
+
             # Constrói condições de filtro
             filter_conditions = []
             for col, values in filtro_request.filtros.items():
@@ -118,12 +123,14 @@ class equipamentoService:
                         conditions.append(f"valor = '{val}'")
                 
                 filter_conditions.append(
-                    f"EXISTS (SELECT 1 FROM dbo.tb_caract AS T2 "
-                    f"WHERE T2.equipamento = dbo.tb_caract.equipamento "
-                    f"AND ds_caracteristica = '{col}' "
-                    f"AND ({' OR '.join(conditions)}))"
+                    f"""EXISTS (
+                            SELECT 1 FROM dbo.tb_caract AS T2
+                            WHERE T2.equipamento = dbo.tb_caract.equipamento
+                            AND ds_caracteristica = '{col}'
+                            AND ({' OR '.join(conditions)})
+                        )"""
                 )
-            
+
             # Query final
             final_query = f"""
                 SELECT DISTINCT equipamento 
@@ -131,61 +138,107 @@ class equipamentoService:
                 WHERE classe IN ({class_filter}) 
                 AND {' AND '.join(filter_conditions)}
             """
-            
+
             filtered_df = execute_query(final_query)
-            
+
             if filtered_df.empty:
                 return {
                     "equipamentos": [],
-                    "dados_pivot": None,
+                    "tabela": {
+                        "columns": [],
+                        "rows": []
+                    },
                     "message": "Nenhum equipamento encontrado com os filtros aplicados."
                 }
-            
-            # Insere na tabela temporária
-            resultado_insercao = execute_insert(filtered_df, "dbo.tb_temp")
-            
-            # Busca dados completos
-            query_completa = "SELECT * FROM dbo.tb_caract  WHERE equipamento IN (SELECT equipamento FROM dbo.tb_temp)"
-            df_completo = execute_query(query_completa)
-            df_completo['valor'] = df_completo['valor'].fillna("None")
-            
-            # Cria pivot table
-            dados_pivot = None
-            detalhes_completos = None
-            if not df_completo.empty:
-                df_pivot = df_completo.pivot_table(
-                    index='ds_caracteristica',
-                    columns=['equipamento', 'centro', 'classe'],
-                    values='valor',
-                    aggfunc='first'
-                )
-                dados_pivot = df_pivot.to_dict()
 
-                # Estrutura detalhes completos para cada equipamento
-                df_det = df_completo.pivot_table(
-                    index=['equipamento', 'centro', 'classe'],
-                    columns='ds_caracteristica',
-                    values='valor',
-                    aggfunc='first'
-                ).reset_index()
-                detalhes_completos = df_det.to_dict('records')
+            # Obter os equipamentos diretamente do dataframe filtrado
+            equipamentos = filtered_df["equipamento"].unique().tolist()
+
+            if not equipamentos:
+                return {
+                    "equipamentos": [],
+                    "tabela": {
+                        "columns": [],
+                        "rows": []
+                    },
+                    "message": "Nenhum equipamento encontrado após filtrar equipamentos únicos."
+                }
+
+            # Query final sem tabela temporária
+            equipamentos_str = ", ".join(f"'{e}'" for e in equipamentos)
+            query_completa = f"SELECT * FROM dbo.tb_caract WHERE equipamento IN ({equipamentos_str})"
+            df_completo = execute_query(query_completa)
             
-            # Lista de equipamentos
-            equipamentos = []
-            for _, row in filtered_df.iterrows():
-                equipamentos.append({
-                    "equipamento": row['equipamento']
-                })
+            # Padroniza nulos como None (JSON null)
+            df_completo['valor'] = df_completo['valor'].where(df_completo['valor'].notna(), None)
+
+            # Remover duplicidades exatas, se houver
+            df_completo = df_completo.drop_duplicates(
+                subset=['equipamento', 'centro', 'classe', 'ds_caracteristica'], keep='first'
+            )
             
-            return {
-                "equipamentos": equipamentos,
-                "dados_pivot": dados_pivot,
-                "detalhes_completos": detalhes_completos,
-                "message": f"Encontrados {len(equipamentos)} equipamentos."
+            # Pivot comum (características nas linhas, colunas por equipamento)
+            df_pivot = df_completo.pivot_table(
+                index='ds_caracteristica',
+                columns='equipamento',
+                values='valor',
+                aggfunc='first'
+            )
+
+            equipamentos = df_pivot.columns.tolist()
+            
+            # Cria DataFrames para centro e classe
+            df_centro = df_completo[['equipamento', 'centro']].drop_duplicates().set_index('equipamento').T
+            df_classe = df_completo[['equipamento', 'classe']].drop_duplicates().set_index('equipamento').T
+
+            df_centro.index = ['Centro']
+            df_classe.index = ['Classe']
+
+            # Concatena tudo (linhas: Centro, Classe, depois características)
+            df_final = pd.concat([df_centro, df_classe, df_pivot])
+            
+            # Reset index e renomeia a primeira coluna
+            df_final.columns.name = None
+            df_final = df_final.reset_index().rename(columns={'index': 'Caracteristica'})
+            
+            # Substitui NaN por None
+            #df_final = df_final.where(pd.notnull(df_final), None)
+            df_final = df_final.astype(object).where(pd.notnull(df_final), None)
+            # Converte para JSON amigável para frontend
+            tabela = {
+                "columns": [{"key": col, "label": col} for col in df_final.columns],
+                "rows": df_final.to_dict(orient="records")
             }
             
+            # Retorno final
+            print(tabela)
+        
+            payload = jsonable_encoder({
+                "equipamentos": [{"equipamento": str(e)} for e in equipamentos],
+                "tabela": {
+                    "columns": jsonable_encoder(tabela["columns"]),
+                    "rows": jsonable_encoder(tabela["rows"]),
+                },
+                "message": f"Encontrados {len(equipamentos)} equipamentos."
+            })
+
+            return JSONResponse(content=jsonable_encoder({
+                        "equipamentos": [{"equipamento": str(e)} for e in equipamentos],
+                        "tabela": {
+                            "columns": tabela["columns"],
+                            "rows": tabela["rows"]
+                        },
+                        "message": f"Encontrados {len(equipamentos)} equipamentos."
+                    }))
+
         except Exception as e:
-            raise Exception(f"Erro ao filtrar equipamentos: {e}")
+            print("❌ ERRO AO RETORNAR JSON:")
+            traceback.print_exc()
+            return JSONResponse(
+                content={"erro": "Erro interno ao gerar resposta", "detalhes": str(e)},
+                status_code=500
+            )
+
 
 class SimilaridadeService:
     """Serviço para análise de similaridade de equipamentos"""
