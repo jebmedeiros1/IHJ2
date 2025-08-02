@@ -6,6 +6,8 @@ from models import FiltroRequest, SimilaridadeRequest
 import json
 
 import traceback
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -130,11 +132,14 @@ class equipamentoService:
                 )
 
             # Query final
+            filters_sql = ""
+            if filter_conditions:
+                filters_sql = " AND " + " AND ".join(filter_conditions)
+
             final_query = f"""
-                SELECT DISTINCT equipamento 
-                FROM dbo.tb_caract 
-                WHERE classe IN ({class_filter}) 
-                AND {' AND '.join(filter_conditions)}
+                SELECT DISTINCT equipamento
+                FROM dbo.tb_caract
+                WHERE classe IN ({class_filter}){filters_sql}
             """
 
             filtered_df = execute_query(final_query)
@@ -207,27 +212,14 @@ class equipamentoService:
                 "columns": [{"key": col, "label": col} for col in df_final.columns],
                 "rows": df_final.to_dict(orient="records")
             }
-            
-            # Retorno final
-            print(tabela)
-        
-            payload = jsonable_encoder({
-                "equipamentos": [{"equipamento": str(e)} for e in equipamentos],
-                "tabela": {
-                    "columns": jsonable_encoder(tabela["columns"]),
-                    "rows": jsonable_encoder(tabela["rows"]),
-                },
-                "message": f"Encontrados {len(equipamentos)} equipamentos."
-            })
 
-            return JSONResponse(content=jsonable_encoder({
-                        "equipamentos": [{"equipamento": str(e)} for e in equipamentos],
-                        "tabela": {
-                            "columns": tabela["columns"],
-                            "rows": tabela["rows"]
-                        },
-                        "message": f"Encontrados {len(equipamentos)} equipamentos."
-                    }))
+            payload = {
+                "equipamentos": [{"equipamento": str(e)} for e in equipamentos],
+                "tabela": tabela,
+                "message": f"Encontrados {len(equipamentos)} equipamentos."
+            }
+
+            return JSONResponse(content=jsonable_encoder(payload))
 
         except Exception as e:
             print("❌ ERRO AO RETORNAR JSON:")
