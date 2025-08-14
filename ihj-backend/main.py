@@ -151,10 +151,10 @@ async def filtrar_equipamentos(
             EquipamentoFiltrado(equipamento=eq["equipamento"])
             for eq in resultado["equipamentos"]
         ]
-        
+        print(resultado["tabela"])
         return FiltroResponse(
             equipamentos=equipamentos,
-            dados_pivot=resultado["dados_pivot"],
+            tabela=resultado["tabela"],
             detalhes_completos=resultado.get("detalhes_completos")
         )
     except Exception as e:

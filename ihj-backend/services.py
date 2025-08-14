@@ -218,9 +218,8 @@ class equipamentoService:
                 "tabela": tabela,
                 "message": f"Encontrados {len(equipamentos)} equipamentos."
             }
-
-            return JSONResponse(content=jsonable_encoder(payload))
-
+            return payload
+            
         except Exception as e:
             print("❌ ERRO AO RETORNAR JSON:")
             traceback.print_exc()

@@ -289,56 +289,63 @@ export default function BuscaCaracteristicas() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {resultados.equipamentos && resultados.equipamentos.length > 0 ? (
-              <div className="space-y-4">
-                <div className="grid gap-2">
-                  <h4 className="font-semibold">Equipamentos Encontrados:</h4>
-                  <div className="grid gap-1 max-h-40 overflow-y-auto">
-                    {resultados.equipamentos.map((eq, index) => (
-                      <div key={index} className="text-sm p-2 bg-gray-50 rounded">
-                        {eq.equipamento}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {resultados?.tabela?.rows?.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="font-semibold">Tabela por Característica:</h4>
-                  <div className="overflow-auto border rounded">
-                    <table className="min-w-full text-sm">
-                      <thead>
-                        <tr>
-                          {resultados.tabela.columns.map((col) => (
-                            <th key={col.key} className="border px-2 py-1 text-left">
-                              {col.label}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {resultados.tabela.rows.map((row, rowIndex) => (
-                          <tr key={rowIndex}>
-                            {resultados.tabela.columns.map((col) => (
-                              <td key={col.key} className="border px-2 py-1">
-                                {row[col.key]}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
+  {resultados.equipamentos && resultados.equipamentos.length > 0 && (
 
-              </div>
-            ) : (
-              <p className="text-muted-foreground">
-                Nenhum equipamento encontrado com os filtros aplicados.
-              </p>
-            )}
-          </CardContent>
+    <>
+  {/* 
+    <div className="space-y-4">
+      <div className="grid gap-2">
+        <h4 className="font-semibold">Equipamentos Encontrados:</h4>
+        <div className="grid gap-1 max-h-40 overflow-y-auto">
+          {resultados.equipamentos.map((eq, index) => (
+            <div key={index} className="text-sm p-2 bg-gray-50 rounded">
+              {eq.equipamento}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>  */}
+</>
+  )}
+
+  {resultados?.tabela?.rows?.length > 0 && (
+    <div className="space-y-2 mt-4">
+      <h4 className="font-semibold">Tabela por Característica:</h4>
+      <div className="overflow-auto border rounded">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr>
+              {resultados.tabela.columns.map((col) => (
+                <th key={col.key} className="border px-2 py-1 text-left">
+                  {col.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {resultados.tabela.rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                {resultados.tabela.columns.map((col) => (
+                  <td key={col.key} className="border px-2 py-1">
+                    {row[col.key]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )}
+
+  {(!resultados.equipamentos || resultados.equipamentos.length === 0) &&
+    (!resultados?.tabela?.rows?.length || resultados?.tabela?.rows?.length === 0) && (
+      <p className="text-muted-foreground">
+        Nenhum equipamento encontrado com os filtros aplicados.
+      </p>
+  )}
+</CardContent>
+
         </Card>
       )}
     </div>
