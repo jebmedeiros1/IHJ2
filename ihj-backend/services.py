@@ -173,7 +173,7 @@ class equipamentoService:
             df_completo = execute_query(query_completa)
             
             # Padroniza nulos como None (JSON null)
-            df_completo['valor'] = df_completo['valor'].where(df_completo['valor'].notna(), None)
+            df_completo.loc[:, 'valor'] = df_completo['valor'].where(df_completo['valor'].notna(), None)
 
             # Remover duplicidades exatas, se houver
             df_completo = df_completo.drop_duplicates(
@@ -254,15 +254,15 @@ class SimilaridadeService:
         
         # Aplica regras especiais para grupos PMM e PME
         if 'PMM_GRUPO' in df.columns:
-            df['Similarity_Score'] = similarity_score
+            df.loc[:, 'Similarity_Score'] = similarity_score
             grupo_alvo = target_row['PMM_GRUPO'].values[0]
             df.loc[df['PMM_GRUPO'] == grupo_alvo, 'Similarity_Score'] = 99
         elif 'PME_GRUPO' in df.columns:
-            df['Similarity_Score'] = similarity_score
+            df.loc[:, 'Similarity_Score'] = similarity_score
             grupo_alvo = target_row['PME_GRUPO'].values[0]
             df.loc[df['PME_GRUPO'] == grupo_alvo, 'Similarity_Score'] = 99
         else:
-            df['Similarity_Score'] = similarity_score
+            df.loc[:, 'Similarity_Score'] = similarity_score
         
         similar_options = df[df['equipamento'] != target_equipment].sort_values(by='Similarity_Score', ascending=False)
         return similar_options, target_row
@@ -325,7 +325,8 @@ class SimilaridadeService:
                 })
             
             # Prepara detalhes completos
-            target_row['Similarity_Score'] = 'Similaridade'
+            target_row = target_row.copy()
+            target_row.loc[:, 'Similarity_Score'] = 'Similaridade'
             detailed_view = pd.concat([target_row, similar_options.head(qtd)])
             
             # Merge com informações adicionais se disponível
