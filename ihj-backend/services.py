@@ -294,9 +294,9 @@ class SimilaridadeService:
             
             # Cria pivot table
             df_pivot = df_global.pivot_table(
-                index=['equipamento', 'centro', 'classe'], 
-                columns='id_caracteristica', 
-                values='valor', 
+                index=['equipamento', 'centro', 'classe'],
+                columns='ds_caracteristica',
+                values='valor',
                 aggfunc='first'
             )
             df_reset = df_pivot.reset_index()
@@ -321,7 +321,7 @@ class SimilaridadeService:
                     "equipamento": row['equipamento'],
                     "similarity_score": float(row['Similarity_Score']),
                     "centro": row.get('centro'),
-                    "classe": row.get('Classe')
+                    "classe": row.get('classe')
                 })
             
             # Prepara detalhes completos
